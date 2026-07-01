@@ -1,0 +1,18 @@
+import type { Metadata } from 'next';
+import ListPageLayout from '@/components/public/list/ListPageLayout';
+import BlogListSection from '@/components/public/list/BlogListSection';
+import { getPublishedBlogs } from '@/lib/list-content';
+
+export const metadata: Metadata = { title: 'Blogs' };
+
+const THEME = '#FFFB9B';
+
+export default async function BlogsPage() {
+  const items = await getPublishedBlogs();
+
+  return (
+    <ListPageLayout title="blogs" themeColor={THEME}>
+      <BlogListSection items={items} themeColor={THEME} />
+    </ListPageLayout>
+  );
+}

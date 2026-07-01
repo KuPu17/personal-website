@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Major+Mono+Display&display=swap');
+@import '../styles/background.css';
+@import '../styles/home.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-jetbrains: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f3ef;
+}
+
+body {
+  background-color: #f5f3ef;
+  color: #302832;
+  font-family: var(--font-inter);
+  min-height: 100vh;
+}
+
+body:has(.dashboard-root) {
+  background-color: #0a0a0a;
+  color: #a3a3a3;
+}
+
+button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ── Selection ───────────────────────────────────────────────────────────────── */
+::selection {
+  background-color: rgba(99, 102, 241, 0.3);
+  color: #fafafa;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #262626; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #404040; }
+
+/* ── Focus ring ──────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Utility layers ──────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-gradient-accent {
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass {
+    background: rgba(17, 17, 17, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .border-subtle {
+    border: 1px solid #262626;
+  }
+
+  .input-base {
+    @apply w-full bg-overlay border border-border rounded text-primary placeholder:text-muted
+           px-3 py-2 text-sm transition-colors duration-150
+           focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2
+           bg-accent hover:bg-accent-dim text-white text-sm font-medium rounded
+           transition-all duration-150 focus:outline-none focus:ring-2
+           focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2
+           text-secondary hover:text-primary hover:bg-overlay text-sm font-medium rounded
+           transition-all duration-150 focus:outline-none;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2
+           text-danger hover:bg-danger/10 text-sm font-medium rounded
+           transition-all duration-150 focus:outline-none;
+  }
+
+  .card {
+    @apply bg-surface border border-border rounded-lg p-5;
+  }
+
+  .tag {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+           bg-overlay text-subtle border border-border;
+  }
+}
+
+/* ── Public physics showcase ───────────────────────────────────────────────── */
+.public-shell {
+  min-height: 100vh;
+  background-color: #f5f3ef;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.public-main {
+  position: relative;
+  z-index: 1;
+}
+
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
