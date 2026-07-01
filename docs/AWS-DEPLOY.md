@@ -89,12 +89,12 @@ Replace `USERNAME`, `PASSWORD`, and `ENDPOINT` from the RDS console.
 ### 2.4 Run migrations
 
 Connect with `psql` or RDS Query Editor and run each file in order:
-
+<!-- postgresql://postgres:M2YNmaWfBkMW6zB@kp-website.cu9sgcc6qnnn.us-east-1.rds.amazonaws.com:5432/postgres?sslmode=require -->
 ```bash
-psql "postgresql://..." -f drizzle/0000_initial.sql
-psql "postgresql://..." -f drizzle/0001_extensions.sql
-psql "postgresql://..." -f drizzle/0002_display_dates.sql
-psql "postgresql://..." -f drizzle/0003_site_settings.sql
+psql "postgresql://postgres:M2YNmaWfBkMW6zB@kp-website.cu9sgcc6qnnn.us-east-1.rds.amazonaws.com:5432/postgres?sslmode=require" -f drizzle/0000_initial.sql
+psql "postgresql://postgres:M2YNmaWfBkMW6zB@kp-website.cu9sgcc6qnnn.us-east-1.rds.amazonaws.com:5432/postgres?sslmode=require" -f drizzle/0001_extensions.sql
+psql "postgresql://postgres:M2YNmaWfBkMW6zB@kp-website.cu9sgcc6qnnn.us-east-1.rds.amazonaws.com:5432/postgres?sslmode=require" -f drizzle/0002_display_dates.sql
+psql "postgresql://postgres:M2YNmaWfBkMW6zB@kp-website.cu9sgcc6qnnn.us-east-1.rds.amazonaws.com:5432/postgres?sslmode=require" -f drizzle/0003_site_settings.sql
 ```
 
 ---

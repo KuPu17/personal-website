@@ -4,8 +4,8 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: process.env.AWS_S3_BUCKET_NAME
-          ? `${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com`
+        hostname: process.env.APP_AWS_S3_BUCKET_NAME
+          ? `${process.env.APP_AWS_S3_BUCKET_NAME}.s3.${process.env.APP_AWS_REGION || 'us-east-1'}.amazonaws.com`
           : '*.s3.amazonaws.com',
       },
       {

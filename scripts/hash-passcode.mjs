@@ -10,7 +10,7 @@ if (!passcode) {
   process.exit(1);
 }
 
-bcrypt.hash(passcode, 12).then((hash: string) => {
+bcrypt.hash(passcode, 12).then((hash) => {
   console.log('\nAdd this to your environment as OWNER_PASSCODE_HASH:\n');
   console.log(hash);
   console.log('');
