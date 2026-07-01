@@ -22,9 +22,15 @@ export async function GET() {
     await db.execute(sql`SELECT 1`);
     payload.database = 'connected';
     return NextResponse.json(payload);
-  } catch (err) {
+  } catch (err: any) {
     console.error('[HEALTH]', err);
+    
+    // EXPOSE THE REAL ERROR TO THE API RESPONSE TEMPORARILY
     payload.database = 'error';
+    payload.errorMessage = err?.message || String(err);
+    payload.errorCode = err?.code || 'UNKNOWN_CODE';
+    payload.errorStack = err?.stack || null;
+
     return NextResponse.json(payload, { status: 503 });
   }
 }
