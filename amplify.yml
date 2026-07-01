@@ -5,11 +5,9 @@ frontend:
       commands:
         - nvm use 20
         - npm ci
-        - echo "DATABASE_URL=$DATABASE_URL" >> .env.production
-        - echo "JWT_SECRET=$JWT_SECRET" >> .env.production
-        - echo "OWNER_PASSCODE_HASH=$OWNER_PASSCODE_HASH" >> .env.production
     build:
       commands:
+        - env >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
