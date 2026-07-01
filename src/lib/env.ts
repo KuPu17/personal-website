@@ -53,7 +53,7 @@ export function assertProductionEnv(): void {
 
 export function getMediaPublicBaseUrl(): string | null {
   const cdn =
-    process.env.AWS_CLOUDFRONT_URL?.trim() ||
+    process.env.NEXT_PUBLIC_CLOUDFRONT_URL?.trim() ||
     process.env.NEXT_PUBLIC_MEDIA_URL?.trim();
   return cdn ? cdn.replace(/\/$/, '') : null;
 }
