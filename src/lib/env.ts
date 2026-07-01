@@ -10,8 +10,8 @@ const REQUIRED_IN_PRODUCTION = [
 
 const RECOMMENDED_IN_PRODUCTION = [
   'NEXT_PUBLIC_APP_URL',
-  'AWS_S3_BUCKET_NAME',
-  'AWS_REGION',
+  'APP_AWS_S3_BUCKET_NAME',
+  'APP_AWS_REGION',
 ] as const;
 
 export function assertProductionEnv(): void {
