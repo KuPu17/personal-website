@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import { blogs, projects, canvasBlocks } from '@/db/schema';
 import { eq, desc, asc, and, sql } from 'drizzle-orm';
-import { queryDb } from '@/lib/db-safe';
+import { isDatabaseConfigured } from '@/lib/db-safe';
 import { DEMO_WORKS_RAW, DEMO_PROJECTS_RAW } from '@/lib/demo-blocks';
 
 export type ListCardData = {
@@ -51,9 +51,7 @@ A few things I keep coming back to when building UI:
 
 - **Tokens first** — color, spacing, and type scales before components.
 - **One source of truth** — document decisions where designers and devs both look.
-- **Ship small** — a button and an input done well beats a sprawling library nobody uses.
-
-[Read more on Figma's best practices](https://www.figma.com/best-practices/components-styles-and-shared-libraries/) for component libraries.`,
+- **Ship small** — a button and an input done well beats a sprawling library nobody uses.`,
     imageUrl: null,
   },
   {
@@ -65,13 +63,7 @@ A few things I keep coming back to when building UI:
       'Why sharing work early helps you learn faster and attract the right collaborators.',
     contentMd: `## Building in Public
 
-Sharing drafts, failures, and small wins in the open has changed how I ship:
-
-1. Feedback arrives while the idea is still flexible.
-2. Accountability replaces perfectionism.
-3. The portfolio writes itself.
-
-Start with something small — a screenshot, a paragraph, a link.`,
+Sharing drafts, failures, and small wins in the open has changed how I ship.`,
     imageUrl: null,
   },
 ];
@@ -96,8 +88,22 @@ const DEMO_PROJECTS: ListCardData[] = DEMO_PROJECTS_RAW.map((block, index) => ({
   displayYear: 2025,
 }));
 
+async function queryList<T>(
+  label: string,
+  demo: T[],
+  query: () => Promise<T[]>,
+): Promise<T[]> {
+  if (!isDatabaseConfigured()) return demo;
+  try {
+    return await query();
+  } catch (error) {
+    console.error(`[DB] ${label} failed:`, error);
+    return [];
+  }
+}
+
 export async function getPublishedBlogs(): Promise<ListCardData[]> {
-  return queryDb(async () => {
+  return queryList('getPublishedBlogs', DEMO_BLOGS, async () => {
     const rows = await db
       .select()
       .from(blogs)
@@ -105,8 +111,6 @@ export async function getPublishedBlogs(): Promise<ListCardData[]> {
       .orderBy(
         desc(sql`coalesce(${blogs.publishedAt}, ${blogs.createdAt})`),
       );
-
-    if (rows.length === 0) return DEMO_BLOGS;
 
     return rows.map((row) => ({
       id: row.id,
@@ -118,11 +122,11 @@ export async function getPublishedBlogs(): Promise<ListCardData[]> {
       isPrivate: !row.isPublished,
       publishedAt: (row.publishedAt ?? row.createdAt)?.toISOString() ?? null,
     }));
-  }, DEMO_BLOGS);
+  });
 }
 
 export async function getWorksList(): Promise<ListCardData[]> {
-  return queryDb(async () => {
+  return queryList('getWorksList', DEMO_WORKS, async () => {
     const rows = await db
       .select()
       .from(canvasBlocks)
@@ -138,7 +142,7 @@ export async function getWorksList(): Promise<ListCardData[]> {
         asc(canvasBlocks.spawnOrder),
       );
 
-    const mapped = rows
+    return rows
       .filter((row) => row.externalUrl)
       .map((row) => ({
         id: row.id,
@@ -149,13 +153,11 @@ export async function getWorksList(): Promise<ListCardData[]> {
         displayMonth: row.displayMonth,
         displayYear: row.displayYear,
       }));
-
-    return mapped.length > 0 ? mapped : DEMO_WORKS;
-  }, DEMO_WORKS);
+  });
 }
 
 export async function getProjectsList(): Promise<ListCardData[]> {
-  return queryDb(async () => {
+  return queryList('getProjectsList', DEMO_PROJECTS, async () => {
     const rows = await db
       .select()
       .from(projects)
@@ -164,8 +166,6 @@ export async function getProjectsList(): Promise<ListCardData[]> {
         desc(sql`coalesce(${projects.displayMonth}, 0)`),
         asc(projects.priorityOrder),
       );
-
-    if (rows.length === 0) return DEMO_PROJECTS;
 
     return rows
       .map((row) => ({
@@ -178,5 +178,13 @@ export async function getProjectsList(): Promise<ListCardData[]> {
         displayYear: row.displayYear,
       }))
       .filter((row) => row.href);
-  }, DEMO_PROJECTS);
+  });
+}
+
+export function isUsingDemoListData(items: ListCardData[]): boolean {
+  return (
+    !isDatabaseConfigured() &&
+    items.length > 0 &&
+    items.every((item) => item.id.startsWith('demo-'))
+  );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import ListPageLayout from '@/components/public/list/ListPageLayout';
 import LinkListSection from '@/components/public/list/LinkListSection';
-import { getProjectsList } from '@/lib/list-content';
+import { getProjectsList, isUsingDemoListData } from '@/lib/list-content';
 
 export const metadata: Metadata = { title: 'Projects' };
 
@@ -17,6 +17,7 @@ export default async function ProjectsPage() {
         themeColor={THEME}
         emptyLabel="No projects listed yet."
         pageType="projects"
+        showDemoNotice={isUsingDemoListData(items)}
       />
     </ListPageLayout>
   );

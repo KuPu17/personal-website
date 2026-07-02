@@ -9,6 +9,7 @@ type Props = {
   themeColor: string;
   emptyLabel: string;
   pageType: 'works' | 'projects';
+  showDemoNotice?: boolean;
 };
 
 export default function LinkListSection({
@@ -16,6 +17,7 @@ export default function LinkListSection({
   themeColor,
   emptyLabel,
   pageType,
+  showDemoNotice = false,
 }: Props) {
   return (
     <div className="list-page__stage">
@@ -25,6 +27,7 @@ export default function LinkListSection({
           pageType={pageType}
           themeColor={themeColor}
           itemIds={items.map((item) => item.id)}
+          showDemoNotice={showDemoNotice}
         >
           {items.length === 0 ? (
             <p className="list-page__empty">{emptyLabel}</p>

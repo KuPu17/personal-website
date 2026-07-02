@@ -57,3 +57,24 @@ export function getMediaPublicBaseUrl(): string | null {
     process.env.NEXT_PUBLIC_MEDIA_URL?.trim();
   return cdn ? cdn.replace(/\/$/, '') : null;
 }
+
+/** Bcrypt hashes contain `$` — Next.js dotenv-expand strips bare `$` segments in .env files. */
+export function getOwnerPasscodeHash(): string | null {
+  const raw = process.env.OWNER_PASSCODE_HASH?.trim();
+  if (!raw) return null;
+
+  let hash = raw;
+  if (
+    (hash.startsWith("'") && hash.endsWith("'")) ||
+    (hash.startsWith('"') && hash.endsWith('"'))
+  ) {
+    hash = hash.slice(1, -1);
+  }
+
+  return hash || null;
+}
+
+export function isOwnerPasscodeHashValid(): boolean {
+  const hash = getOwnerPasscodeHash();
+  return Boolean(hash?.startsWith('$2'));
+}

@@ -8,6 +8,7 @@ import type { ListCardData } from '@/lib/list-content';
 type Props = {
   items: ListCardData[];
   themeColor: string;
+  showDemoNotice?: boolean;
 };
 
 function ListGutter({
@@ -31,7 +32,11 @@ function ListGutter({
   return <div className="list-page__gutter list-page__gutter--spacer" aria-hidden />;
 }
 
-export default function BlogListSection({ items, themeColor }: Props) {
+export default function BlogListSection({
+  items,
+  themeColor,
+  showDemoNotice = false,
+}: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const isDismissible = expandedId !== null;
 
@@ -51,6 +56,7 @@ export default function BlogListSection({ items, themeColor }: Props) {
       pageType="blogs"
       themeColor={themeColor}
       itemIds={items.map((item) => item.id)}
+      showDemoNotice={showDemoNotice}
     >
       {items.length === 0 ? (
         <p className="list-page__empty">No posts yet.</p>

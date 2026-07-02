@@ -22,6 +22,7 @@ export function getDbErrorInfo(err: unknown): {
 
   const hints: Record<string, string> = {
     '42P01': 'Database tables are missing — run drizzle migrations (0000–0003).',
+    '42703': 'Database column missing — run migration 0002_display_dates.sql.',
     '3D000': 'The database name in DATABASE_URL does not exist.',
     '28P01': 'Invalid database username or password.',
     'ENOTFOUND': 'Database host could not be resolved.',

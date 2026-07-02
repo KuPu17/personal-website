@@ -9,6 +9,7 @@ import {
   isAuthBypassed,
   getSessionFromRequest,
 } from '@/lib/auth';
+import { getOwnerPasscodeHash, isOwnerPasscodeHashValid } from '@/lib/env';
 
 async function verifyPasscode(passcode: string): Promise<boolean> {
   const trimmed = passcode.trim();
@@ -18,8 +19,15 @@ async function verifyPasscode(passcode: string): Promise<boolean> {
     return true;
   }
 
-  const hash = process.env.OWNER_PASSCODE_HASH;
+  const hash = getOwnerPasscodeHash();
   if (!hash) return false;
+
+  if (!isOwnerPasscodeHashValid()) {
+    console.error(
+      '[AUTH] OWNER_PASSCODE_HASH is malformed — in .env escape every $ as \\$ (run npm run hash-passcode)',
+    );
+    return false;
+  }
 
   return bcrypt.compare(trimmed, hash);
 }
@@ -59,7 +67,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    if (!isAuthBypassed() && !process.env.OWNER_PASSCODE_HASH) {
+    if (!isAuthBypassed() && !getOwnerPasscodeHash()) {
       console.error('OWNER_PASSCODE_HASH is not set');
       return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
     }

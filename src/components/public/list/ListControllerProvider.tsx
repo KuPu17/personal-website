@@ -5,7 +5,6 @@ import { useControllerMode } from '@/contexts/ControllerModeContext';
 import ControllerComposer, {
   type ControllerPageType,
 } from '@/components/public/list/ControllerComposer';
-import { isDemoListId } from '@/lib/list-dates';
 import type { ListCardData } from '@/lib/list-content';
 
 type ListControllerContextValue = {
@@ -24,6 +23,7 @@ type Props = {
   pageType: ControllerPageType;
   themeColor: string;
   itemIds?: string[];
+  showDemoNotice?: boolean;
   children: React.ReactNode;
 };
 
@@ -31,6 +31,7 @@ export default function ListControllerProvider({
   pageType,
   themeColor,
   itemIds = [],
+  showDemoNotice = false,
   children,
 }: Props) {
   const { isActive, isLoading } = useControllerMode();
@@ -38,8 +39,6 @@ export default function ListControllerProvider({
   const [editingItem, setEditingItem] = useState<ListCardData | null>(null);
 
   const showComposer = composing || editingItem !== null;
-  const onlyDemoEntries =
-    itemIds.length > 0 && itemIds.every((id) => isDemoListId(id));
   const closeComposer = () => {
     setComposing(false);
     setEditingItem(null);
@@ -68,9 +67,9 @@ export default function ListControllerProvider({
           +
         </button>
       )}
-      {isActive && !isLoading && onlyDemoEntries && (
+      {isActive && !isLoading && showDemoNotice && (
         <p className="controller-demo-notice">
-          Showing demo cards — connect your database to edit existing entries.
+          Demo preview — set DATABASE_URL to save real content.
         </p>
       )}
       {children}

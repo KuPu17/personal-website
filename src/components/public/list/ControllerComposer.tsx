@@ -55,6 +55,32 @@ function itemToForm(item: ListCardData): FormState {
   };
 }
 
+const API_FETCH: RequestInit = { credentials: 'include' };
+
+async function throwIfNotOk(res: Response, fallback: string): Promise<void> {
+  if (res.ok) return;
+
+  let message = fallback;
+  try {
+    const data = (await res.json()) as {
+      error?: string | { formErrors?: string[] };
+      hint?: string;
+    };
+    if (typeof data.error === 'string') {
+      message = data.error;
+    }
+    if (data.hint) message = `${message} (${data.hint})`;
+  } catch {
+    // ignore JSON parse errors
+  }
+
+  if (res.status === 401) {
+    message = 'Session expired — enter your passcode again on the home page.';
+  }
+
+  throw new Error(message);
+}
+
 export default function ControllerComposer({
   pageType,
   themeColor,
@@ -127,6 +153,7 @@ export default function ControllerComposer({
         const res = await fetch(
           isEditing ? `/api/blog/${editItem!.id}` : '/api/blog',
           {
+            ...API_FETCH,
             method: isEditing ? 'PATCH' : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
@@ -137,7 +164,7 @@ export default function ControllerComposer({
           },
         );
 
-        if (!res.ok) throw new Error('Could not save blog post.');
+        await throwIfNotOk(res, 'Could not save blog post.');
       }
 
       if (pageType === 'projects') {
@@ -161,6 +188,7 @@ export default function ControllerComposer({
         const res = await fetch(
           isEditing ? `/api/projects/${editItem!.id}` : '/api/projects',
           {
+            ...API_FETCH,
             method: isEditing ? 'PATCH' : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
@@ -177,7 +205,7 @@ export default function ControllerComposer({
           },
         );
 
-        if (!res.ok) throw new Error('Could not save project.');
+        await throwIfNotOk(res, 'Could not save project.');
       }
 
       if (pageType === 'works') {
@@ -202,6 +230,7 @@ export default function ControllerComposer({
             ? `/api/canvas-blocks/manage/${editItem!.id}`
             : '/api/canvas-blocks/manage',
           {
+            ...API_FETCH,
             method: isEditing ? 'PATCH' : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
@@ -217,7 +246,7 @@ export default function ControllerComposer({
           },
         );
 
-        if (!res.ok) throw new Error('Could not save work.');
+        await throwIfNotOk(res, 'Could not save work.');
       }
 
       onClose();
