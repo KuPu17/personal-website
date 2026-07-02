@@ -34,6 +34,7 @@ export function useMediaUpload(context: UploadContext): UseMediaUploadReturn {
         const ext = file.name.match(/\.[^.]+$/)?.[0] ?? '.bin';
         const presignRes = await fetch('/api/upload/presign', {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             context,
@@ -66,7 +67,11 @@ export function useMediaUpload(context: UploadContext): UseMediaUploadReturn {
         setState({ uploading: false, progress: 100, error: null, url: publicUrl });
         return publicUrl;
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Upload failed';
+        let message = err instanceof Error ? err.message : 'Upload failed';
+        if (message === 'Failed to fetch') {
+          message =
+            'Image upload blocked — add your site URL to S3 bucket CORS (see scripts/s3-cors.json).';
+        }
         setState({ uploading: false, progress: 0, error: message, url: null });
         return null;
       }

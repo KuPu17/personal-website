@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
 import { projects } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -18,6 +19,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     .where(eq(projects.id, params.id))
     .returning();
   if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  revalidatePath('/projects');
   return NextResponse.json(row);
 }
 

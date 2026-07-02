@@ -4,6 +4,7 @@ import LinkListSection from '@/components/public/list/LinkListSection';
 import { getWorksList, isUsingDemoListData } from '@/lib/list-content';
 
 export const metadata: Metadata = { title: 'Works' };
+export const dynamic = 'force-dynamic';
 
 const THEME = '#FFE697';
 

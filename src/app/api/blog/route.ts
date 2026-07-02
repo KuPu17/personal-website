@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
 import { blogs } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -45,6 +46,8 @@ export async function POST(req: NextRequest) {
         publishedAt: publishedAt ? new Date(publishedAt) : null,
       })
       .returning();
+    revalidatePath('/blogs');
+    if (row.slug) revalidatePath(`/blog/${row.slug}`);
     return NextResponse.json(row, { status: 201 });
   } catch (err) {
     const info = getDbErrorInfo(err);

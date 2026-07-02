@@ -247,7 +247,6 @@ export default function ControllerComposer({
                     ...payload,
                     blockType: 'website',
                     isVisible: true,
-                    spawnOrder: Date.now(),
                   },
             ),
           },

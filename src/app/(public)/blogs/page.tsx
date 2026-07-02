@@ -4,6 +4,7 @@ import BlogListSection from '@/components/public/list/BlogListSection';
 import { getPublishedBlogs, isUsingDemoListData } from '@/lib/list-content';
 
 export const metadata: Metadata = { title: 'Blogs' };
+export const dynamic = 'force-dynamic';
 
 const THEME = '#FFFB9B';
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
 import { projects } from '@/db/schema';
 import { asc } from 'drizzle-orm';
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
       return validationError(parsed);
     }
     const [row] = await db.insert(projects).values(parsed.data).returning();
+    revalidatePath('/projects');
     return NextResponse.json(row, { status: 201 });
   } catch (err) {
     const info = getDbErrorInfo(err);

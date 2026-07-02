@@ -4,6 +4,7 @@ import LinkListSection from '@/components/public/list/LinkListSection';
 import { getProjectsList, isUsingDemoListData } from '@/lib/list-content';
 
 export const metadata: Metadata = { title: 'Projects' };
+export const dynamic = 'force-dynamic';
 
 const THEME = '#F5C5FF';
 

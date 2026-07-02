@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
 import { blogs } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -42,6 +43,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       .where(eq(blogs.id, params.id))
       .returning();
     if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    revalidatePath('/blogs');
+    if (row.slug) revalidatePath(`/blog/${row.slug}`);
     return NextResponse.json(row);
   } catch (err) {
     const info = getDbErrorInfo(err);

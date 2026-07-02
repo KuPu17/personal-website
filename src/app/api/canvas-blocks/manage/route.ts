@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
 import { canvasBlocks } from '@/db/schema';
-import { asc } from 'drizzle-orm';
+import { asc, sql } from 'drizzle-orm';
 import { CanvasBlockCreateSchema } from '@/lib/validators';
 import { getDbErrorInfo } from '@/lib/db-safe';
 
@@ -28,7 +29,18 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return validationError(parsed);
     }
-    const [row] = await db.insert(canvasBlocks).values(parsed.data).returning();
+    const [{ nextOrder }] = await db
+      .select({
+        nextOrder: sql<number>`coalesce(max(${canvasBlocks.spawnOrder}), -1) + 1`,
+      })
+      .from(canvasBlocks);
+
+    const [row] = await db
+      .insert(canvasBlocks)
+      .values({ ...parsed.data, spawnOrder: nextOrder })
+      .returning();
+
+    revalidatePath('/works');
     return NextResponse.json(row, { status: 201 });
   } catch (err) {
     const info = getDbErrorInfo(err);
