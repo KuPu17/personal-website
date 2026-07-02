@@ -18,8 +18,8 @@ const kirangHaerang = Kirang_Haerang({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s · KP',
-    default: 'KP — Portfolio',
+    template: '%s · Kunchit Pujari',
+    default: 'Kunchit Pujari',
   },
   description: 'Interactive portfolio and private command center.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
