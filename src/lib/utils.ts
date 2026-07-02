@@ -1,5 +1,7 @@
 import clsx, { type ClassValue } from 'clsx';
 
+import { customAlphabet } from 'nanoid';
+
 // ── Class merging ─────────────────────────────────────────────────────────────
 export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
@@ -13,6 +15,14 @@ export function slugify(text: string): string {
     .trim()
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
+}
+
+const blogSlugSuffix = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 6);
+
+/** Slug for blogs API — must match BlogCreateSchema kebab-case regex. */
+export function generateBlogSlug(title: string): string {
+  const base = slugify(title).replace(/^-+|-+$/g, '') || 'post';
+  return `${base}-${blogSlugSuffix()}`;
 }
 
 // ── Relative time ─────────────────────────────────────────────────────────────
@@ -57,4 +67,12 @@ export function isValidUrl(str: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** Ensure user-entered links satisfy zod .url() — adds https:// when missing. */
+export function normalizeExternalUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return trimmed;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
 }

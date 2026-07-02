@@ -30,7 +30,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const parsed = BlogCreateSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      const first =
+        Object.entries(fieldErrors).find(([, msgs]) => msgs && msgs.length > 0)?.[1]?.[0] ??
+        'Invalid blog data';
+      return NextResponse.json({ error: first, details: parsed.error.flatten() }, { status: 400 });
     }
 
     const { publishedAt, ...rest } = parsed.data;

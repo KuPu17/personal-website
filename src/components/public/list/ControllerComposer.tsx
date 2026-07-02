@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { nanoid } from 'nanoid';
 import { useMediaUpload } from '@/hooks/useMediaUpload';
-import { slugify } from '@/lib/utils';
+import { generateBlogSlug, normalizeExternalUrl } from '@/lib/utils';
 import { MONTH_OPTIONS, toDateInputValue } from '@/lib/list-dates';
 import type { ListCardData } from '@/lib/list-content';
 
@@ -63,11 +62,19 @@ async function throwIfNotOk(res: Response, fallback: string): Promise<void> {
   let message = fallback;
   try {
     const data = (await res.json()) as {
-      error?: string | { formErrors?: string[] };
+      error?: string | { formErrors?: string[]; fieldErrors?: Record<string, string[]> };
       hint?: string;
     };
     if (typeof data.error === 'string') {
       message = data.error;
+    } else if (data.error && typeof data.error === 'object') {
+      const parts = [
+        ...(data.error.formErrors ?? []),
+        ...Object.entries(data.error.fieldErrors ?? {}).flatMap(([field, msgs]) =>
+          msgs.map((msg) => `${field}: ${msg}`),
+        ),
+      ];
+      if (parts.length > 0) message = parts.join('; ');
     }
     if (data.hint) message = `${message} (${data.hint})`;
   } catch {
@@ -159,7 +166,7 @@ export default function ControllerComposer({
             body: JSON.stringify(
               isEditing
                 ? payload
-                : { ...payload, slug: `${slugify(title)}-${nanoid(6)}` },
+                : { ...payload, slug: generateBlogSlug(title) },
             ),
           },
         );
@@ -170,7 +177,7 @@ export default function ControllerComposer({
       if (pageType === 'projects') {
         const name = form.title.trim();
         const description = form.description.trim();
-        const demoUrl = form.link.trim();
+        const demoUrl = normalizeExternalUrl(form.link);
         if (!name || !description || !demoUrl) {
           throw new Error('Title, description, and link are required.');
         }
@@ -210,7 +217,7 @@ export default function ControllerComposer({
 
       if (pageType === 'works') {
         const label = form.title.trim();
-        const externalUrl = form.link.trim();
+        const externalUrl = normalizeExternalUrl(form.link);
         if (!label || !externalUrl) {
           throw new Error('Title and link are required.');
         }
