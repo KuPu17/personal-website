@@ -6,6 +6,37 @@ export function isDatabaseConfigured(): boolean {
   return true;
 }
 
+type PgError = {
+  code?: string;
+  message?: string;
+};
+
+export function getDbErrorInfo(err: unknown): {
+  code: string;
+  message: string;
+  hint: string | null;
+} {
+  const pg = err as PgError;
+  const code = pg.code ?? 'UNKNOWN';
+  const message = pg.message ?? String(err);
+
+  const hints: Record<string, string> = {
+    '42P01': 'Database tables are missing — run drizzle migrations (0000–0003).',
+    '3D000': 'The database name in DATABASE_URL does not exist.',
+    '28P01': 'Invalid database username or password.',
+    'ENOTFOUND': 'Database host could not be resolved.',
+    'ECONNREFUSED': 'Database refused the connection (security group / public access).',
+    'SELF_SIGNED_CERT_IN_CHAIN':
+      'RDS SSL cert rejected — use sslmode=no-verify in DATABASE_URL or set rejectUnauthorized: false in db pool.',
+  };
+
+  return {
+    code,
+    message,
+    hint: hints[code] ?? null,
+  };
+}
+
 export async function queryDb<T>(
   operation: () => Promise<T>,
   fallback: T,

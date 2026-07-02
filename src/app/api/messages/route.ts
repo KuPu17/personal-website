@@ -3,7 +3,7 @@ import { db } from '@/db';
 import { messages } from '@/db/schema';
 import { MessageCreateSchema } from '@/lib/validators';
 import { hashIp, checkRateLimit, isBotSubmission } from '@/lib/rate-limit';
-import { isDatabaseConfigured } from '@/lib/db-safe';
+import { getDbErrorInfo, isDatabaseConfigured } from '@/lib/db-safe';
 
 // POST /api/messages — public endpoint
 export async function POST(req: NextRequest) {
@@ -20,11 +20,9 @@ export async function POST(req: NextRequest) {
 
     // Honeypot — bots fill the hidden `website` field
     if (isBotSubmission(parsed.data.website)) {
-      // Silently accept (don't let bots know they were blocked)
       return NextResponse.json({ ok: true }, { status: 200 });
     }
 
-    // IP extraction (Cloudfront / Vercel / App Runner headers)
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
       req.headers.get('x-real-ip') ??
@@ -61,7 +59,24 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
-    console.error('[MESSAGES POST]', err);
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+    const info = getDbErrorInfo(err);
+    console.error('[MESSAGES POST]', info.code, info.message);
+
+    if (info.code === '42P01') {
+      return NextResponse.json(
+        { error: 'Messaging is not set up yet.', hint: info.hint },
+        { status: 503 },
+      );
+    }
+
+    return NextResponse.json(
+      {
+        error: 'Could not save message.',
+        ...(process.env.NODE_ENV !== 'production'
+          ? { code: info.code, hint: info.hint, detail: info.message }
+          : {}),
+      },
+      { status: 500 },
+    );
   }
 }
